@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Game puzzle blok matematika yang lucu dan menantang. Susun angka agar jumlah baris atau kolom sama dengan target di taman bunga yang indah.">
+  <meta name="author" content="Autonomous Product Studio">
+  <meta name="theme-color" content="#d4edda">
+  <meta name="color-scheme" content="light">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Taman Hitung">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta property="og:type" content="game">
+  <meta property="og:title" content="Taman Hitung: Block Blast Matematika">
+  <meta property="og:description" content="Susun blok angka, capai target jumlah, dan lihat taman bungamu bermekaran!">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="Taman Hitung">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Taman Hitung: Block Blast Matematika">
+  <meta name="twitter:description" content="Game puzzle matematika yang santai dan mendidik.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234ade80'/%3E%3Ccircle cx='50' cy='30' r='15' fill='%23f472b6'/%3E%3Ccircle cx='70' cy='50' r='15' fill='%23f472b6'/%3E%3Ccircle cx='50' cy='70' r='15' fill='%23f472b6'/%3E%3Ccircle cx='30' cy='50' r='15' fill='%23f472b6'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23fbbf24'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234ade80'/%3E%3Ccircle cx='50' cy='30' r='15' fill='%23f472b6'/%3E%3Ccircle cx='70' cy='50' r='15' fill='%23f472b6'/%3E%3Ccircle cx='50' cy='70' r='15' fill='%23f472b6'/%3E%3Ccircle cx='30' cy='50' r='15' fill='%23f472b6'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23fbbf24'/%3E%3C/svg%3E">
+  <title>Taman Hitung: Block Blast Matematika</title>
+  <style>
+    :root {
+      --bg-primary: oklch(96% 0.04 140);
+      --bg-secondary: oklch(98% 0.02 140);
+      --text-primary: oklch(30% 0.05 140);
+      --text-muted: oklch(50% 0.05 140);
+      --accent-green: oklch(75% 0.15 140);
+      --accent-pink: oklch(70% 0.15 300);
+      --accent-yellow: oklch(80% 0.15 80);
+      --accent-orange: oklch(75% 0.15 30);
+      --shadow: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+      --radius: 16px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%; height: 100dvh;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Nunito', 'Quicksand', 'Varela Round', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .grain {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 9999; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    .app-container {
+      display: flex; flex-direction: column;
+      height: 100%; height: 100dvh; min-height: 100vh;
+      max-width: 600px; margin: 0 auto;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      flex: 0 0 auto; padding: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg-secondary); border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow); z-index: 10;
+    }
+    .stat-box { text-align: center; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+    .target-value { color: var(--accent-pink); }
+
+    .btn-icon {
+      background: none; border: none; cursor: pointer; padding: 8px;
+      border-radius: 50%; color: var(--text-primary); transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      min-width: 44px; min-height: 44px;
+    }
+    .btn-icon:hover, .btn-icon:focus-visible { background: oklch(90% 0.05 140); outline: 2px solid var(--accent-green); }
+    .btn-icon svg { width: 24px; height: 24px; fill: currentColor; }
+
+    /* Game Area */
+    .game-area {
+      flex: 1; display: flex; justify-content: center; align-items: center;
+      padding: 16px; min-height: 0; position: relative;
+    }
+    .grid {
+      display: grid; gap: 8px; width: 100%; max-width: min(90vw, 80dvh);
+      aspect-ratio: 1 / 1; background: var(--bg-secondary);
+      padding: 12px; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      touch-action: none; user-select: none; -webkit-user-select: none;
+    }
+    .cell {
+      background: oklch(92% 0.04 140); border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(1rem, 4vw, 1.5rem); font-weight: 800;
+      transition: transform 0.2s, background 0.2s;
+      position: relative;
+    }
+    .cell.filled { box-shadow: inset 0 2px 4px oklch(0% 0 0 / 0.1); color: white; text-shadow: 0 1px 2px oklch(0% 0 0 / 0.3); }
+    .cell.cursor-highlight { outline: 3px solid var(--accent-yellow); outline-offset: -3px; }
+    
+    /* Block Colors based on value */
+    .val-low { background: var(--accent-green); }
+    .val-mid { background: var(--accent-yellow); color: var(--text-primary) !important; text-shadow: none !important; }
+    .val-high { background: var(--accent-orange); }
+    .val-max { background: var(--accent-pink); }
+
+    /* Tray */
+    .tray-area {
+      flex: 0 0 auto; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom));
+      display: flex; justify-content: space-around; align-items: center;
+      background: var(--bg-secondary); border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: 0 -4px 6px -1px oklch(0% 0 0 / 0.05); min-height: 140px;
+    }
+    .tray-slot {
+      width: 30%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      cursor: grab; touch-action: none; position: relative; transition: opacity 0.2s, transform 0.2s;
+    }
+    .tray-slot:active { cursor: grabbing; }
+    .tray-slot.empty { opacity: 0.3; cursor: default; }
+    .tray-slot.selected { transform: scale(1.1); filter: drop-shadow(0 0 8px var(--accent-yellow)); }
+    
+    .mini-grid { display: grid; gap: 4px; pointer-events: none; }
+    .mini-cell {
+      width: clamp(20px, 6vw, 32px); height: clamp(20px, 6vw, 32px);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(0.7rem, 2.5vw, 1rem); font-weight: 700; color: white;
+    }
+
+    /* Ghost Drag */
+    .drag-ghost {
+      position: fixed; pointer-events: none; z-index: 1000;
+      opacity: 0.9; transform: translate(-50%, -50%) scale(1.1);
+      filter: drop-shadow(0 10px 15px oklch(0% 0 0 / 0.2));
+    }
+
+    /* Overlays */
+    .overlay {
+      position: fixed; inset: 0; background: oklch(96% 0.04 140 / 0.95);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px; text-align: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+    .overlay h1 { font-size: 2.5rem; margin-bottom: 8px; color: var(--text-primary); }
+    .overlay p { font-size: 1.1rem; color: var(--text-muted); max-width: 400px; margin-bottom: 32px; line-height: 1.6; }
+    
+    .btn-primary {
+      background: var(--accent-green); color: white; border: none;
+      padding: 16px 32px; font-size: 1.1rem; font-weight: 700;
+      border-radius: 50px; cursor: pointer; box-shadow: var(--shadow);
+      transition: transform 0.1s, box-shadow 0.1s; min-width: 200px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:focus-visible { outline: 3px solid var(--text-primary); outline-offset: 2px; }
+
+    .btn-secondary {
+      background: transparent; color: var(--text-muted); border: 2px solid oklch(80% 0.05 140);
+      padding: 12px 24px; font-size: 1rem; font-weight: 600;
+      border-radius: 50px; cursor: pointer; margin-top: 16px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: oklch(90% 0.05 140); color: var(--text-primary); }
+
+    /* Difficulty Selector */
+    .diff-selector { display: flex; gap: 8px; margin-bottom: 24px; }
+    .diff-btn {
+      padding: 8px 16px; border-radius: 20px; border: 2px solid oklch(80% 0.05 140);
+      background: transparent; font-weight: 600; cursor: pointer; color: var(--text-muted);
+    }
+    .diff-btn.active { background: var(--accent-green); color: white; border-color: var(--accent-green); }
+
+    /* Flower Particle */
+    .flower-particle {
+      position: fixed; pointer-events: none; z-index: 50;
+      color: var(--accent-pink); width: 32px; height: 32px;
+      animation: floatUp 0.8s ease-out forwards;
+    }
+    @keyframes floatUp {
+      0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-50%, -150%) scale(1.2) rotate(45deg); opacity: 0; }
+    }
+
+    /* Orientation Warning */
+    .orientation-warning {
+      display: none; position: fixed; inset: 0; background: var(--bg-primary);
+      z-index: 200; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+    }
+    @media (max-width: 600px) and (orientation: landscape) {
+      .orientation-warning { display: flex; }
+    }
+
+    /* Accessibility */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+    :focus-visible { outline: 3px solid var(--accent-green); outline-offset: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  
+  <div class="orientation-warning">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); margin-bottom: 16px;">
+      <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/>
+    </svg>
+    <h2>Putar Perangkat Anda</h2>
+    <p>Untuk pengalaman bermain terbaik, silakan putar perangkat ke mode portrait (berdiri).</p>
+  </div>
+
+  <div class="app-container" id="app">
+    <header class="header">
+      <div class="stat-box">
+        <div class="stat-label">Skor</div>
+        <div class="stat-value" id="scoreDisplay" aria-live="polite">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Target</div>
+        <div class="stat-value target-value" id="targetDisplay">10</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-icon" id="muteBtn" aria-label="Bisukan Suara">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </button>
+        <button class="btn-icon" id="pauseBtn" aria-label="Jeda Permainan">
+          <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="game-area">
+      <div class="grid" id="grid" role="grid" aria-label="Grid permainan matematika"></div>
+    </main>
+
+    <footer class="tray-area" id="tray" role="group" aria-label="Pilihan blok">
+      <div class="tray-slot" data-index="0" role="button" tabindex="0" aria-label="Blok 1"></div>
+      <div class="tray-slot" data-index="1" role="button" tabindex="0" aria-label="Blok 2"></div>
+      <div class="tray-slot" data-index="2" role="button" tabindex="0" aria-label="Blok 3"></div>
+    </footer>
+  </div>
+
+  <!-- Menu Overlay -->
+  <div class="overlay active" id="menuOverlay">
+    <h1>🌸 Taman Hitung</h1>
+    <p>Seret blok angka ke grid. Jumlahkan baris atau kolom agar sama dengan <strong>Target</strong> untuk mendapatkan poin bonus dan melihat bunga bermekaran!</p>
+    
+    <div class="diff-selector">
+      <button class="diff-btn active" data-diff="easy">Pemula (5x5)</button>
+      <button class="diff-btn" data-diff="medium">Berkembang (6x6)</button>
+      <button class="diff-btn" data-diff="hard">Ahli (7x7)</button>
+    </div>
+    
+    <button class="btn-primary" id="startBtn">Mulai Bermain</button>
+    <button class="btn-secondary" id="resetDataBtn" style="margin-top: 32px; font-size: 0.9rem;">Reset Data Tersimpan</button>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div class="overlay" id="pauseOverlay">
+    <h1>⏸️ Dijeda</h1>
+    <p>Permainan dihentikan sementara.</p>
+    <button class="btn-primary" id="resumeBtn">Lanjutkan</button>
+    <button class="btn-secondary" id="quitBtn">Keluar ke Menu</button>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div class="overlay" id="gameOverOverlay">
+    <h1>🌻 Taman Penuh!</h1>
+    <p>Tidak ada lagi ruang untuk menempatkan blok. Skor akhir Anda: <strong id="finalScore">0</strong></p>
+    <p>Skor Tertinggi: <strong id="highScoreDisplay">0</strong></p>
+    <button class="btn-primary" id="restartBtn">Main Lagi</button>
+    <button class="btn-secondary" id="menuBtn">Menu Utama</button>
+  </div>
+
+  <script>
+    // ==========================================
+    // KONFIGURASI & STATE
+    // ==========================================
+    const DIFFICULTIES = {
+      easy: { gridSize: 5, target: 10, maxNum: 5, name: 'Pemula' },
+      medium: { gridSize: 6, target: 15, maxNum: 9, name: 'Berkembang' },
+      hard: { gridSize: 7, target: 20, maxNum: 9, name: 'Ahli' }
+    };
+
+    const STORAGE_KEY = 'taman_hitung_v1';
+    
+    let state = {
+      gameState: 'menu', // menu, playing, paused, gameover
+      difficulty: 'easy',
+      score: 0,
+      highScore: 0,
+      grid: [],
+      trayPieces: [null, null, null],
+      settings: { mute: false },
+      cursorRow: 0,
+      cursorCol: 0,
+      selectedTrayIndex: -1
+    };
+
+    let audioCtx = null;
+    let dragState = { isDragging: false, pieceIndex: -1, ghost: null, startX: 0, startY: 0 };
+
+    // ==========================================
+    // AUDIO SYSTEM (Web Audio API)
+    // ==========================================
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+
+    function playSound(type) {
+      if (state.settings.mute || !audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      try {
+        if (type === 'pop') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+          osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'clear') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'perfect') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(500, now);
+          osc.frequency.linearRampToValueAtTime(1000, now + 0.4);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now); osc.stop(now + 0.4);
+        } else if (type === 'error') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+          osc.start(now); osc.stop(now + 0.2);
+        }
+      } catch (e) {
+        console.warn('Audio error:', e);
+      }
+    }
+
+    // ==========================================
+    // LOCAL STORAGE
+    // ==========================================
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          highScore: state.highScore,
+          settings: state.settings,
+          difficulty: state.difficulty
+        }));
+      } catch (e) {
+        console.warn('LocalStorage quota exceeded atau tidak tersedia');
+      }
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.highScore = parsed.highScore || 0;
+          state.settings = parsed.settings || { mute: false };
+          state.difficulty = parsed.difficulty || 'easy';
+        }
+      } catch (e) {
+        console.warn('Data korup, reset ke default');
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    // ==========================================
+    // GAME LOGIC
+    // ==========================================
+    function initGame() {
+      const diff = DIFFICULTIES[state.difficulty];
+      state.grid = Array(diff.gridSize).fill().map(() => Array(diff.gridSize).fill(0));
+      state.score = 0;
+      state.cursorRow = Math.floor(diff.gridSize / 2);
+      state.cursorCol = Math.floor(diff.gridSize / 2);
+      state.selectedTrayIndex = -1;
+      state.trayPieces = [generatePiece(), generatePiece(), generatePiece()];
+      state.gameState = 'playing';
+      
+      updateUI();
+      renderGrid();
+      renderTray();
+      preventBack();
+    }
+
+    function generatePiece() {
+      const shapes = [
+        [[1]], [[1, 1]], [[1], [1]], [[1, 1], [1, 1]],
+        [[1, 1, 1]], [[1], [1], [1]], [[1, 0], [1, 1]], [[0, 1], [1, 1]],
+        [[1, 1], [1, 0]], [[1, 1], [0, 1]], [[1, 1, 1], [0, 1, 0]], [[0, 1, 0], [1, 1, 1]]
+      ];
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      const diff = DIFFICULTIES[state.difficulty];
+      return shape.map(row => 
+        row.map(cell => cell === 1 ? Math.floor(Math.random() * diff.maxNum) + 1 : 0)
+      );
+    }
+
+    function canPlace(piece, startRow, startCol) {
+      for (let r = 0; r < piece.length; r++) {
+        for (let c = 0; c < piece[r].length; c++) {
+          if (piece[r][c] !== 0) {
+            const gridR = startRow + r;
+            const gridC = startCol + c;
+            if (gridR < 0 || gridR >= state.grid.length || gridC < 0 || gridC >= state.grid[0].length) return false;
+            if (state.grid[gridR][gridC] !== 0) return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function placePiece(piece, startRow, startCol) {
+      for (let r = 0; r < piece.length; r++) {
+        for (let c = 0; c < piece[r].length; c++) {
+          if (piece[r][c] !== 0) {
+            state.grid[startRow + r][startCol + c] = piece[r][c];
+          }
+        }
+      }
+      playSound('pop');
+      checkLines();
+    }
+
+    function checkLines() {
+      let rowsToClear = [];
+      let colsToClear = [];
+      let perfectCount = 0;
+      let normalCount = 0;
+      const diff = DIFFICULTIES[state.difficulty];
+
+      for (let r = 0; r < diff.gridSize; r++) {
+        if (state.grid[r].every(cell => cell !== 0)) {
+          const sum = state.grid[r].reduce((a, b) => a + b, 0);
+          if (sum === diff.target) perfectCount++;
+          else normalCount++;
+          rowsToClear.push(r);
+        }
+      }
+
+      for (let c = 0; c < diff.gridSize; c++) {
+        let full = true;
+        let sum = 0;
+        for (let r = 0; r < diff.gridSize; r++) {
+          if (state.grid[r][c] === 0) { full = false; break; }
+          sum += state.grid[r][c];
+        }
+        if (full) {
+          if (sum === diff.target) perfectCount++;
+          else normalCount++;
+          colsToClear.push(c);
+        }
+      }
+
+      if (rowsToClear.length > 0 || colsToClear.length > 0) {
+        rowsToClear.forEach(r => {
+          for (let c = 0; c < diff.gridSize; c++) {
+            spawnFlower(r, c);
+            state.grid[r][c] = 0;
+          }
+        });
+        colsToClear.forEach(c => {
+          for (let r = 0; r < diff.gridSize; r++) {
+            spawnFlower(r, c);
+            state.grid[r][c] = 0;
+          }
+        });
+
+        const points = (normalCount * 10) + (perfectCount * 50);
+        state.score += points;
+        playSound(perfectCount > 0 ? 'perfect' : 'clear');
+        updateUI();
+      }
+    }
+
+    function checkGameOver() {
+      if (state.trayPieces.every(p => p === null)) return false;
+      
+      for (let p of state.trayPieces) {
+        if (!p) continue;
+        for (let r = 0; r < state.grid.length; r++) {
+          for (let c = 0; c < state.grid[0].length; c++) {
+            if (canPlace(p, r, c)) return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function refillTray() {
+      state.trayPieces = [generatePiece(), generatePiece(), generatePiece()];
+      renderTray();
+      if (checkGameOver()) endGame();
+    }
+
+    function endGame() {
+      state.gameState = 'gameover';
+      if (state.score > state.highScore) {
+        state.highScore = state.score;
+        saveState();
+      }
+      document.getElementById('finalScore').textContent = state.score;
+      document.getElementById('highScoreDisplay').textContent = state.highScore;
+      document.getElementById('gameOverOverlay').classList.add('active');
+    }
+
+    // ==========================================
+    // RENDERING
+    // ==========================================
+    function getCellClass(val) {
+      if (val === 0) return '';
+      if (val <= 3) return 'val-low';
+      if (val <= 6) return 'val-mid';
+      if (val <= 8) return 'val-high';
+      return 'val-max';
+    }
+
+    function renderGrid() {
+      const gridEl = document.getElementById('grid');
+      const diff = DIFFICULTIES[state.difficulty];
+      gridEl.style.gridTemplateColumns = `repeat(${diff.gridSize}, 1fr)`;
+      gridEl.innerHTML = '';
+
+      for (let r = 0; r < diff.gridSize; r++) {
+        for (let c = 0; c < diff.gridSize; c++) {
+          const cell = document.createElement('div');
+          cell.className = `cell ${state.grid[r][c] !== 0 ? 'filled ' + getCellClass(state.grid[r][c]) : ''}`;
+          if (state.gameState === 'playing' && r === state.cursorRow && c === state.cursorCol) {
+            cell.classList.add('cursor-highlight');
+          }
+          cell.textContent = state.grid[r][c] !== 0 ? state.grid[r][c] : '';
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderTray() {
+      const slots = document.querySelectorAll('.tray-slot');
+      slots.forEach((slot, idx) => {
+        slot.innerHTML = '';
+        slot.classList.remove('empty', 'selected');
+        slot.setAttribute('aria-disabled', 'false');
+        
+        const piece = state.trayPieces[idx];
+        if (!piece) {
+          slot.classList.add('empty');
+          slot.setAttribute('aria-disabled', 'true');
+          return;
+        }
+
+        if (idx === state.selectedTrayIndex) slot.classList.add('selected');
+
+        const miniGrid = document.createElement('div');
+        miniGrid.className = 'mini-grid';
+        miniGrid.style.gridTemplateColumns = `repeat(${piece[0].length}, 1fr)`;
+        
+        piece.forEach(row => {
+          row.forEach(val => {
+            const cell = document.createElement('div');
+            cell.className = `mini-cell ${val !== 0 ? getCellClass(val) : ''}`;
+            cell.textContent = val !== 0 ? val : '';
+            if (val === 0) cell.style.visibility = 'hidden';
+            miniGrid.appendChild(cell);
+          });
+        });
+        slot.appendChild(miniGrid);
+      });
+    }
+
+    function updateUI() {
+      document.getElementById('scoreDisplay').textContent = state.score;
+      document.getElementById('targetDisplay').textContent = DIFFICULTIES[state.difficulty].target;
+      renderGrid();
+    }
+
+    function spawnFlower(r, c) {
+      const cells = document.querySelectorAll('.cell');
+      const diff = DIFFICULTIES[state.difficulty];
+      const index = r * diff.gridSize + c;
+      const cell = cells[index];
+      if (!cell) return;
+      
+      const rect = cell.getBoundingClientRect();
+      const flower = document.createElement('div');
+      flower.className = 'flower-particle';
+      flower.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%"><path fill="currentColor" d="M12 2C10.9 2 10 2.9 10 4C10 5.1 10.9 6 12 6C13.1 6 14 5.1 14 4C14 2.9 13.1 2 12 2ZM12 18C10.9 18 10 18.9 10 20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20C14 18.9 13.1 18 12 18ZM4 12C2.9 12 2 12.9 2 14C2 15.1 2.9 16 4 16C5.1 16 6 15.1 6 14C6 12.9 5.1 12 4 12ZM20 12C18.9 12 18 12.9 18 14C18 15.1 18.9 16 20 16C21.1 16 22 15.1 22 14C22 12.9 21.1 12 20 12ZM12 12C9.24 12 7 14.24 7 17C7 19.76 9.24 22 12 22C14.76 22 17 19.76 17 17C17 14.24 14.76 12 12 12Z"/></svg>';
+      flower.style.left = `${rect.left + rect.width/2}px`;
+      flower.style.top = `${rect.top + rect.height/2}px`;
+      document.body.appendChild(flower);
+      setTimeout(() => flower.remove(), 800);
+    }
+
+    // ==========================================
+    // INPUT HANDLING (Pointer & Keyboard)
+    // ==========================================
+    function handlePointerDown(e, idx) {
+      if (state.gameState !== 'playing') return;
+      if (!state.trayPieces[idx]) return;
+      
+      initAudio();
+      e.preventDefault();
+      
+      dragState = {
+        isDragging: true,
+        pieceIndex: idx,
+        startX: e.clientX,
+        startY: e.clientY
+      };
+
+      const piece = state.trayPieces[idx];
+      const ghost = document.createElement('div');
+      ghost.className = 'drag-ghost mini-grid';
+      ghost.style.gridTemplateColumns = `repeat(${piece[0].length}, 1fr)`;
+      
+      piece.forEach(row => {
+        row.forEach(val => {
+          const cell = document.createElement('div');
+          cell.className = `mini-cell ${val !== 0 ? getCellClass(val) : ''}`;
+          cell.textContent = val !== 0 ? val : '';
+          if (val === 0) cell.style.visibility = 'hidden';
+          ghost.appendChild(cell);
+        });
+      });
+      
+      ghost.style.left = `${e.clientX}px`;
+      ghost.style.top = `${e.clientY}px`;
+      document.body.appendChild(ghost);
+      dragState.ghost = ghost;
+      
+      document.querySelectorAll('.tray-slot')[idx].style.opacity = '0.3';
+      
+      document.addEventListener('pointermove', handlePointerMove);
+      document.addEventListener('pointerup', handlePointerUp);
+      document.addEventListener('pointercancel', handlePointerUp);
+    }
+
+    function handlePointerMove(e) {
+      if (!dragState.isDragging) return;
+      e.preventDefault();
+      dragState.ghost.style.left = `${e.clientX}px`;
+      dragState.ghost.style.top = `${e.clientY}px`;
+    }
+
+    function handlePointerUp(e) {
+      if (!dragState.isDragging) return;
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+      document.removeEventListener('pointercancel', handlePointerUp);
+
+      const gridEl = document.getElementById('grid');
+      const rect = gridEl.getBoundingClientRect();
+      const diff = DIFFICULTIES[state.difficulty];
+      const cellSize = rect.width / diff.gridSize;
+      
+      const piece = state.trayPieces[dragState.pieceIndex];
+      const pieceWidth = piece[0].length * cellSize;
+      const pieceHeight = piece.length * cellSize;
+      
+      const dropX = e.clientX - rect.left - (pieceWidth / 2) + (cellSize / 2);
+      const dropY = e.clientY - rect.top - (pieceHeight / 2) + (cellSize / 2);
+      
+      const col = Math.floor(dropX / cellSize);
+      const row = Math.floor(dropY / cellSize);
+
+      if (canPlace(piece, row, col)) {
+        placePiece(piece, row, col);
+        state.trayPieces[dragState.pieceIndex] = null;
+        state.selectedTrayIndex = -1;
+        renderTray();
+        
+        if (state.trayPieces.every(p => p === null)) {
+          setTimeout(refillTray, 300);
+        } else if (checkGameOver()) {
+          setTimeout(endGame, 300);
+        }
+      } else {
+        playSound('error');
+        document.querySelectorAll('.tray-slot')[dragState.pieceIndex].style.opacity = '1';
+      }
+
+      if (dragState.ghost) {
+        dragState.ghost.remove();
+        dragState.ghost = null;
+      }
+      dragState.isDragging = false;
+    }
+
+    function handleKeydown(e) {
+      if (state.gameState === 'menu') {
+        if (e.key === 'Enter') startGame();
+        return;
+      }
+      
+      if (state.gameState === 'gameover') {
+        if (e.key === 'Enter') { initGame(); document.getElementById('gameOverOverlay').classList.remove('active'); }
+        return;
+      }
+
+      if (state.gameState === 'paused') {
+        if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') togglePause();
+        return;
+      }
+
+      if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { togglePause(); return; }
+      if (e.key === 'm' || e.key === 'M') { toggleMute(); return; }
+
+      if (e.key >= '1' && e.key <= '3') {
+        const idx = parseInt(e.key) - 1;
+        if (state.trayPieces[idx]) {
+          state.selectedTrayIndex = state.selectedTrayIndex === idx ? -1 : idx;
+          renderTray();
+        }
+      }
+
+      if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        const diff = DIFFICULTIES[state.difficulty];
+        if (e.key === 'ArrowUp') state.cursorRow = Math.max(0, state.cursorRow - 1);
+        if (e.key === 'ArrowDown') state.cursorRow = Math.min(diff.gridSize - 1, state.cursorRow + 1);
+        if (e.key === 'ArrowLeft') state.cursorCol = Math.max(0, state.cursorCol - 1);
+        if (e.key === 'ArrowRight') state.cursorCol = Math.min(diff.gridSize - 1, state.cursorCol + 1);
+        renderGrid();
+      }
+
+      if (e.key === 'Enter') {
+        if (state.selectedTrayIndex !== -1 && state.trayPieces[state.selectedTrayIndex]) {
+          if (canPlace(state.trayPieces[state.selectedTrayIndex], state.cursorRow, state.cursorCol)) {
+            placePiece(state.trayPieces[state.selectedTrayIndex], state.cursorRow, state.cursorCol);
+            state.trayPieces[state.selectedTrayIndex] = null;
+            state.selectedTrayIndex = -1;
+            renderTray();
+            if (state.trayPieces.every(p => p === null)) setTimeout(refillTray, 300);
+            else if (checkGameOver()) setTimeout(endGame, 300);
+          } else {
+            playSound('error');
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // UI ACTIONS
+    // ==========================================
+    function startGame() {
+      initAudio();
+      document.getElementById('menuOverlay').classList.remove('active');
+      initGame();
+    }
+
+    function togglePause() {
+      if (state.gameState === 'playing') {
+        state.gameState = 'paused';
+        document.getElementById('pauseOverlay').classList.add('active');
+      } else if (state.gameState === 'paused') {
+        state.gameState = 'playing';
+        document.getElementById('pauseOverlay').classList.remove('active');
+        preventBack();
+      }
+    }
+
+    function toggleMute() {
+      state.settings.mute = !state.settings.mute;
+      saveState();
+      const btn = document.getElementById('muteBtn');
+      btn.innerHTML = state.settings.mute 
+        ? '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>'
+        : '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+    }
+
+    function preventBack() {
+      if (state.gameState === 'playing' || state.gameState === 'paused') {
+        history.pushState({ game: true }, '');
+      }
+    }
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      toggleMute(); // Set initial icon
+      
+      // Difficulty selector
+      document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.difficulty = btn.dataset.diff;
+          saveState();
+        });
+      });
+
+      // Set active diff button
+      document.querySelector(`.diff-btn[data-diff="${state.difficulty}"]`)?.classList.add('active');
+
+      // Buttons
+      document.getElementById('startBtn').addEventListener('click', startGame);
+      document.getElementById('pauseBtn').addEventListener('click', togglePause);
+      document.getElementById('resumeBtn').addEventListener('click', togglePause);
+      document.getElementById('quitBtn').addEventListener('click', () => {
+        state.gameState = 'menu';
+        document.getElementById('pauseOverlay').classList.remove('active');
+        document.getElementById('menuOverlay').classList.add('active');
+      });
+      document.getElementById('restartBtn').addEventListener('click', () => {
+        document.getElementById('gameOverOverlay').classList.remove('active');
+        initGame();
+      });
+      document.getElementById('menuBtn').addEventListener('click', () => {
+        state.gameState = 'menu';
+        document.getElementById('gameOverOverlay').classList.remove('active');
+        document.getElementById('menuOverlay').classList.add('active');
+      });
+      document.getElementById('resetDataBtn').addEventListener('click', () => {
+        if (confirm('Hapus semua data skor dan pengaturan?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          location.reload();
+        }
+      });
+      document.getElementById('muteBtn').addEventListener('click', toggleMute);
+
+      // Tray interactions
+      document.querySelectorAll('.tray-slot').forEach((slot, idx) => {
+        slot.addEventListener('pointerdown', (e) => handlePointerDown(e, idx));
+        slot.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleKeydown({ key: (idx + 1).toString() });
+          }
+        });
+      });
+
+      // Global keyboard
+      window.addEventListener('keydown', handleKeydown);
+
+      // Android Back Button handling
+      window.addEventListener('popstate', (e) => {
+        if (state.gameState === 'playing') {
+          togglePause();
+          preventBack();
+        } else if (state.gameState === 'paused') {
+          state.gameState = 'menu';
+          document.getElementById('pauseOverlay').classList.remove('active');
+          document.getElementById('menuOverlay').classList.add('active');
+          preventBack();
+        }
+      });
+
+      // Prevent context menu on game area
+      document.getElementById('grid').addEventListener('contextmenu', e => e.preventDefault());
+      document.getElementById('tray').addEventListener('contextmenu', e => e.preventDefault());
+
+      // Visibility change (pause on tab switch/phone call)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && state.gameState === 'playing') {
+          togglePause();
+        }
+      });
+
+      // Prevent accidental close
+      window.addEventListener('beforeunload', (e) => {
+        if (state.gameState === 'playing') {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      // Initial render
+      updateUI();
+    });
+  </script>
+</body>
+</html>
